@@ -32,14 +32,13 @@ module Hdsk.Preprocessing where
 -- , otherFunc
 -- ) where
 
-import Data.Kind
-import GHC.TypeLits (TypeError, ErrorMessage(..))
+import Data.Kind (Type)
 
 -- | The 'PreprocessedBy' type tags datasets of type @a@ as having been
 -- preprocessed by algorithm @alg@. This is useful for requiring certain
 -- preprocessing steps to have occurred before modeling.
 newtype PreprocessedBy (algs :: [Type]) a = Preprocessed a
-  deriving (Show, Functor)
+  deriving Show
 
 -- | Algorithms which are 'Normalizer's scale data in a way that can be said to
 -- eliminate units, enabling the comparison of features which, raw, have

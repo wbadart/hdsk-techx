@@ -42,6 +42,8 @@ extra-deps:
 - these-0.8.1@sha256:84f27d83c06f14bb1eb8532645075093935ed3c877bbe68c3eeb624a446286c4,3649
 - validation-1@sha256:0396b87a0f96af33799050aed04e61df24c6ac1a3550626090017d6b95252ff4,3658
 - cluss-0.3@sha256:1d81f9d041f1c8d3de6900f8b2fbf27fbdb70c7e05b9361e21bb0ca88f24f8ac,2682
+- Frames-0.6.1@sha256:9d628962ed6d1e835ab2b4d309d7909dc477acf6fa270879b6085621546dccaa,8595
+- discrimination-0.4@sha256:ad60cb42d42648ebc6f649ce761fe61cb58eca9e2b17a6b4fe68ed2e1fdd4146,2479
 # - acme-missiles-0.3
 # - git: https://github.com/commercialhaskell/stack.git
 #   commit: e7b331f14bcffb8367cd58fbfc8b40ec7642100a
