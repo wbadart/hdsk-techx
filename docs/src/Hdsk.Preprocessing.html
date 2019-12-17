@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# OPTIONS_HADDOCK show-extensions #-}</span><span>
+</span><a name="line-2"></a><span>
+</span><a name="line-3"></a><span class="hs-comment">{-|
+Module      : Hdsk.Preprocessing
+Description : Preprocessing utilities for cleaning, normalizing, etc.
+Maintainer  : Badart_William@bah.com
+Stability   : experimental
+Portability : POSIX
+
+&quot;Hdsk.Preprocessing&quot; exposes a suite of data preprocessing utilities.
+-}</span><span>
+</span><a name="line-12"></a><span>
+</span><a name="line-13"></a><span class="hs-pragma">{-# LANGUAGE AllowAmbiguousTypes #-}</span><span>
+</span><a name="line-14"></a><span class="hs-pragma">{-# LANGUAGE ConstraintKinds #-}</span><span>
+</span><a name="line-15"></a><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><a name="line-16"></a><span class="hs-pragma">{-# LANGUAGE DeriveFunctor #-}</span><span>
+</span><a name="line-17"></a><span class="hs-pragma">{-# LANGUAGE FlexibleInstances #-}</span><span>
+</span><a name="line-18"></a><span class="hs-pragma">{-# LANGUAGE MultiParamTypeClasses #-}</span><span>
+</span><a name="line-19"></a><span class="hs-pragma">{-# LANGUAGE PolyKinds #-}</span><span>
+</span><a name="line-20"></a><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
+</span><a name="line-21"></a><span class="hs-pragma">{-# LANGUAGE TypeApplications #-}</span><span>
+</span><a name="line-22"></a><span class="hs-pragma">{-# LANGUAGE TypeFamilies #-}</span><span>
+</span><a name="line-23"></a><span class="hs-pragma">{-# LANGUAGE TypeOperators #-}</span><span>
+</span><a name="line-24"></a><span class="hs-pragma">{-# LANGUAGE UndecidableInstances #-}</span><span>
+</span><a name="line-25"></a><span>
+</span><a name="line-26"></a><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Hdsk.Preprocessing</span><span> </span><span class="hs-keyword">where</span><span>
+</span><a name="line-27"></a><span class="hs-comment">-- ( Normalizer</span><span>
+</span><a name="line-28"></a><span class="hs-comment">-- , PreprocessedBy</span><span>
+</span><a name="line-29"></a><span class="hs-comment">-- , PreprocessedBy'</span><span>
+</span><a name="line-30"></a><span class="hs-comment">-- , standardScaler</span><span>
+</span><a name="line-31"></a><span class="hs-comment">-- , minMaxScaler</span><span>
+</span><a name="line-32"></a><span class="hs-comment">-- , otherFunc</span><span>
+</span><a name="line-33"></a><span class="hs-comment">-- ) where</span><span>
+</span><a name="line-34"></a><span>
+</span><a name="line-35"></a><span class="hs-keyword">import</span><span> </span><span class="hs-identifier">Data.Kind</span><span>
+</span><a name="line-36"></a><span class="hs-keyword">import</span><span> </span><span class="hs-identifier">GHC.TypeLits</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">TypeError</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">ErrorMessage</span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><a name="line-37"></a><span>
+</span><a name="line-38"></a><span class="hs-comment">-- | The 'PreprocessedBy' type tags datasets of type @a@ as having been</span><span>
+</span><a name="line-39"></a><span class="hs-comment">-- preprocessed by algorithm @alg@. This is useful for requiring certain</span><span>
+</span><a name="line-40"></a><span class="hs-comment">-- preprocessing steps to have occurred before modeling.</span><span>
+</span><a name="line-41"></a><span class="hs-keyword">newtype</span><span> </span><a name="PreprocessedBy"><a href="Hdsk.Preprocessing.html#PreprocessedBy"><span class="hs-identifier">PreprocessedBy</span></a></a><span> </span><span class="hs-special">(</span><a name="local-6989586621679049359"><a href="#local-6989586621679049359"><span class="hs-identifier">algs</span></a></a><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="hs-identifier hs-type">Type</span><span class="hs-special">]</span><span class="hs-special">)</span><span> </span><a name="local-6989586621679049360"><a href="#local-6989586621679049360"><span class="hs-identifier">a</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a name="Preprocessed"><a href="Hdsk.Preprocessing.html#Preprocessed"><span class="hs-identifier">Preprocessed</span></a></a><span> </span><a href="#local-6989586621679049360"><span class="hs-identifier hs-type">a</span></a><span>
+</span><a name="line-42"></a><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Show</span><span class="hs-special">,</span><span> </span><span class="hs-identifier hs-type">Functor</span><span class="hs-special">)</span><span>
+</span><a name="line-43"></a><span>
+</span><a name="line-44"></a><span class="hs-comment">-- | Algorithms which are 'Normalizer's scale data in a way that can be said to</span><span>
+</span><a name="line-45"></a><span class="hs-comment">-- eliminate units, enabling the comparison of features which, raw, have</span><span>
+</span><a name="line-46"></a><span class="hs-comment">-- different scales or even orders of magnitude.</span><span>
+</span><a name="line-47"></a><span class="hs-keyword">data</span><span> </span><a name="Normalizer"><a href="Hdsk.Preprocessing.html#Normalizer"><span class="hs-identifier">Normalizer</span></a></a><span>
+</span><a name="line-48"></a><span>
+</span><a name="line-49"></a><span class="hs-comment">-- | 'MissingValueHandler's denote that some consideration has been given to</span><span>
+</span><a name="line-50"></a><span class="hs-comment">-- missing values within a dataset. This could be anything from dropping all</span><span>
+</span><a name="line-51"></a><span class="hs-comment">-- rows with a missing value (as with TODO), to allowing all missing values to</span><span>
+</span><a name="line-52"></a><span class="hs-comment">-- pass through (i.e. TODO).</span><span>
+</span><a name="line-53"></a><span class="hs-keyword">data</span><span> </span><a name="MissingValueHandler"><a href="Hdsk.Preprocessing.html#MissingValueHandler"><span class="hs-identifier">MissingValueHandler</span></a></a><span>
+</span><a name="line-54"></a><span>
+</span><a name="line-55"></a><span class="hs-identifier">dropMissingVals</span><span> </span><span class="hs-glyph">::</span><span> </span><a href="Hdsk.Preprocessing.html#PreprocessedBy"><span class="hs-identifier hs-type">PreprocessedBy</span></a><span> </span><a href="#local-6989586621679050203"><span class="hs-identifier hs-type">algs</span></a><span> </span><a href="#local-6989586621679050204"><span class="hs-identifier hs-type">a</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Hdsk.Preprocessing.html#PreprocessedBy"><span class="hs-identifier hs-type">PreprocessedBy</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">MissingValueHandler</span><span> </span><span class="hs-glyph">:</span><span> </span><a href="#local-6989586621679050203"><span class="hs-identifier hs-type">algs</span></a><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><a href="#local-6989586621679050205"><span class="hs-identifier hs-type">f</span></a><span> </span><a href="#local-6989586621679050204"><span class="hs-identifier hs-type">a</span></a><span class="hs-special">)</span><span>
+</span><a name="line-56"></a><a name="dropMissingVals"><a href="Hdsk.Preprocessing.html#dropMissingVals"><span class="hs-identifier">dropMissingVals</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">undefined</span><span>
+</span><a name="line-57"></a><span>
+</span><a name="line-58"></a><span class="hs-identifier">keepMissingVals</span><span> </span><span class="hs-glyph">::</span><span> </span><a href="Hdsk.Preprocessing.html#PreprocessedBy"><span class="hs-identifier hs-type">PreprocessedBy</span></a><span> </span><a href="#local-6989586621679050200"><span class="hs-identifier hs-type">algs</span></a><span> </span><a href="#local-6989586621679050201"><span class="hs-identifier hs-type">a</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Hdsk.Preprocessing.html#PreprocessedBy"><span class="hs-identifier hs-type">PreprocessedBy</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">MissingValueHandler</span><span> </span><span class="hs-glyph">:</span><span> </span><a href="#local-6989586621679050200"><span class="hs-identifier hs-type">algs</span></a><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><a href="#local-6989586621679050202"><span class="hs-identifier hs-type">f</span></a><span> </span><a href="#local-6989586621679050201"><span class="hs-identifier hs-type">a</span></a><span class="hs-special">)</span><span>
+</span><a name="line-59"></a><a name="keepMissingVals"><a href="Hdsk.Preprocessing.html#keepMissingVals"><span class="hs-identifier">keepMissingVals</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">undefined</span><span>
+</span><a name="line-60"></a><span>
+</span><a name="line-61"></a><span class="hs-comment">-- | Standardize features by removing the mean and scaling to unit variance.</span><span>
+</span><a name="line-62"></a><span class="hs-identifier">standardScaler</span><span> </span><span class="hs-glyph">::</span><span> </span><a href="Hdsk.Preprocessing.html#PreprocessedBy"><span class="hs-identifier hs-type">PreprocessedBy</span></a><span> </span><a href="#local-6989586621679050197"><span class="hs-identifier hs-type">algs</span></a><span> </span><a href="#local-6989586621679050198"><span class="hs-identifier hs-type">a</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Hdsk.Preprocessing.html#PreprocessedBy"><span class="hs-identifier hs-type">PreprocessedBy</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Normalizer</span><span> </span><span class="hs-glyph">:</span><span> </span><a href="#local-6989586621679050197"><span class="hs-identifier hs-type">algs</span></a><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><a href="#local-6989586621679050199"><span class="hs-identifier hs-type">f</span></a><span> </span><a href="#local-6989586621679050198"><span class="hs-identifier hs-type">a</span></a><span class="hs-special">)</span><span>
+</span><a name="line-63"></a><a name="standardScaler"><a href="Hdsk.Preprocessing.html#standardScaler"><span class="hs-identifier">standardScaler</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">undefined</span><span>
+</span><a name="line-64"></a><span>
+</span><a name="line-65"></a><span class="hs-comment">-- | Transform features by scaling each feature to a given range.</span><span>
+</span><a name="line-66"></a><span class="hs-identifier">minMaxScaler</span><span> </span><span class="hs-glyph">::</span><span> </span><a href="Hdsk.Preprocessing.html#PreprocessedBy"><span class="hs-identifier hs-type">PreprocessedBy</span></a><span> </span><a href="#local-6989586621679050194"><span class="hs-identifier hs-type">algs</span></a><span> </span><a href="#local-6989586621679050195"><span class="hs-identifier hs-type">a</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Hdsk.Preprocessing.html#PreprocessedBy"><span class="hs-identifier hs-type">PreprocessedBy</span></a><span> </span><span class="hs-special">(</span><span class="hs-identifier hs-type">Normalizer</span><span> </span><span class="hs-glyph">:</span><span> </span><a href="#local-6989586621679050194"><span class="hs-identifier hs-type">algs</span></a><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><a href="#local-6989586621679050196"><span class="hs-identifier hs-type">f</span></a><span> </span><a href="#local-6989586621679050195"><span class="hs-identifier hs-type">a</span></a><span class="hs-special">)</span><span>
+</span><a name="line-67"></a><a name="minMaxScaler"><a href="Hdsk.Preprocessing.html#minMaxScaler"><span class="hs-identifier">minMaxScaler</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-identifier hs-var">undefined</span><span>
+</span><a name="line-68"></a><span>
+</span><a name="line-69"></a><span class="hs-identifier">noPreprocess</span><span> </span><span class="hs-glyph">::</span><span> </span><a href="#local-6989586621679050192"><span class="hs-identifier hs-type">f</span></a><span> </span><a href="#local-6989586621679050193"><span class="hs-identifier hs-type">a</span></a><span> </span><span class="hs-glyph">-&gt;</span><span> </span><a href="Hdsk.Preprocessing.html#PreprocessedBy"><span class="hs-identifier hs-type">PreprocessedBy</span></a><span> </span><span class="hs-special">'</span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-special">(</span><a href="#local-6989586621679050192"><span class="hs-identifier hs-type">f</span></a><span> </span><a href="#local-6989586621679050193"><span class="hs-identifier hs-type">a</span></a><span class="hs-special">)</span><span>
+</span><a name="line-70"></a><a name="noPreprocess"><a href="Hdsk.Preprocessing.html#noPreprocess"><span class="hs-identifier">noPreprocess</span></a></a><span> </span><span class="hs-glyph">=</span><span> </span><a href="Hdsk.Preprocessing.html#Preprocessed"><span class="hs-identifier hs-var">Preprocessed</span></a><span>
+</span><a name="line-71"></a></pre></body></html>
