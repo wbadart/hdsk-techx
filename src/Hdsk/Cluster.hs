@@ -17,30 +17,26 @@ Here we implement a number of different clustering algorithms.
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 
-module Hdsk.Cluster where
--- ( dbscan
--- , kmeans
--- ) where
+module Hdsk.Cluster
+( dbscan
+, kmeans
+) where
 
-import GHC.TypeLits (TypeError, ErrorMessage(..))
-import Hdsk.Preprocessing  -- (Normalizer, PreprocessedBy, otherFunc, standardScaler)
+import GHC.TypeLits (ErrorMessage(..))
+import Hdsk.Preprocessing (Normalizer, PreprocessedBy)
+import Hdsk.Internal.Types (Member)
 
 -- | Use DBSCAN to compute a clustering of the pre-normalized dataset.
-dbscan :: Normalizer alg => PreprocessedBy alg (f a) -> f clusterId
+dbscan :: Member algs Normalizer (
+       Text "DBSCAN works best with normalized data."
+  :$$: Text "Please apply a Normalizer to your data before moving on."
+  ) => PreprocessedBy algs (f a) -> f clusterId
 dbscan = undefined
 
 -- | Calculate the clustering of the pre-normalized dataset using KMeans.
 -- TODO: check assumption of convex clusters, as well as choice of /K/?
-kmeans :: Normalizer alg => PreprocessedBy alg (f a) -> f clusterId
-kmeans = undefined
-
-kmeans' :: Member algs StandardScaler (
+kmeans :: Member algs Normalizer (
        Text "KMeans doesn't give meaningful results on unnormalized data."
   :$$: Text "Please apply a Normalizer to your data first."
-  ) => PreprocessedBy' algs (f a) -> f clusterId
-kmeans' = undefined
-
-x = [[1, 2, 3], [4, 5, 6]]
-x' = noPreprocess x
--- res = kmeans x
--- res' = kmeans' $ x
+  ) => PreprocessedBy algs (f a) -> f clusterId
+kmeans = undefined

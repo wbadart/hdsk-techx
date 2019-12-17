@@ -10,20 +10,26 @@ Portability : POSIX
 TODO
 -}
 
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE TypeOperators #-}
+
 module Hdsk.DecisionTree
 ( decisionTreeClassifier
 , decisionTreeRegressor
 , exportGraphviz
 ) where
 
+import GHC.TypeLits (ErrorMessage(..))
+
 import Hdsk.Preprocessing
+import Hdsk.Internal.Types
 
 -- | Trains a decision tree classifier.
-decisionTreeClassifier :: MissingValueHandler alg => PreprocessedBy alg (f a) -> f label
+decisionTreeClassifier :: Member algs MissingValueHandler (
+       Text "This decision tree algorithm doesn't know what to do with missing values."
+  :$$: Text "Please apply a MissingValueHandler first."
+  ) => PreprocessedBy algs (f a) -> f label
 decisionTreeClassifier = undefined
-
-x = keepMissingVals $ standardScaler [[1, 2, 3], [4, 5, 6]]
-res = decisionTreeClassifier x
 
 -- | Trains a decision tree regressor.
 decisionTreeRegressor = undefined
