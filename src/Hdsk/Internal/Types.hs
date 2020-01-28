@@ -21,7 +21,8 @@ TODO
 {-# LANGUAGE UndecidableInstances  #-}
 
 module Hdsk.Internal.Types
-( Member
+( Empty
+, Member
 ) where
 
 import Data.Kind
@@ -49,7 +50,7 @@ type family IndexOf (ts :: [k]) (n :: Nat) :: Type where
 type family Found (ts :: [k]) (t :: k) (e :: ErrorMessage) :: Nat where
   Found '[]      t e = TypeError e
   Found (t : ts) t _ = 0
-  Found (u : ts) t e = (Found ts t e) + 1
+  Found (u : ts) t e = Found ts t e + 1
 
 class Find (ts :: [k]) (t :: k) where
   finder :: SNat (Found ts t (Text "unreachable"))
@@ -59,7 +60,11 @@ instance {-# OVERLAPPING #-} Find (t : ts) t where
   {-# INLINE finder #-}
 
 instance ( Find ts t
-         , Found (u : ts) t (Text "unreachable") ~ ((Found ts t (Text "unreachable")) + 1)
+         , Found (u : ts) t (Text "unreachable") ~ (Found ts t (Text "unreachable") + 1)
          ) => Find (u : ts) t where
   finder = SS $ finder @_ @ts @t
   {-# INLINE finder #-}
+
+type family Empty (ts :: [Type]) (e :: ErrorMessage) :: Constraint where
+  Empty '[] _ = ()
+  Empty _   e = TypeError e
