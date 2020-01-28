@@ -1,6 +1,9 @@
 # Generated cabal file
 hdsk.cabal
 
+# Generated stack lock file
+stack.yaml.lock
+
 # Default Haskell gitignore entries
 dist
 dist-*
