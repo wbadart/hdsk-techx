@@ -1,3 +1,7 @@
+# Generated cabal file
+hdsk.cabal
+
+# Default Haskell gitignore entries
 dist
 dist-*
 cabal-dev
